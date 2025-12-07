@@ -95,21 +95,22 @@ function renderGoalTypeOptions(){
   });
 }
 
+function formatMajorCell(majors, idx){
+  const m=majors[idx-1]; 
+  if(!m||!m.content)return {html:'', bgColor:''};
+  const termText=m.due_term==='下期末'?'下期まで':'上期まで';
+  const mark=m.done?'■':'□';
+  const bgColor=m.done?'bg-green-200':'';
+  return {html:`${termText}[${mark}]`, bgColor};
+}
+
 function renderUserGoalList(){
   const tb=document.getElementById('user-goal-list-body');
   tb.innerHTML='';
   (window._userGoals||[]).forEach((g,i)=>{
     const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
     const majors=g.majors||[];
-    const cell=(idx)=>{
-      const m=majors[idx-1]; 
-      if(!m||!m.content)return {html:'', bgColor:''};
-      const termText=m.due_term==='下期末'?'下期まで':'上期まで';
-      const mark=m.done?'■':'□';
-      const bgColor=m.done?'bg-green-200':'';
-      return {html:`${termText}[${mark}]`, bgColor};
-    };
-    const c1=cell(1), c2=cell(2), c3=cell(3), c4=cell(4), c5=cell(5);
+    const c1=formatMajorCell(majors,1), c2=formatMajorCell(majors,2), c3=formatMajorCell(majors,3), c4=formatMajorCell(majors,4), c5=formatMajorCell(majors,5);
     tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
       <td class="border px-2 py-1">${g.goal_type_name||''}</td>
       <td class="border px-2 py-1">${g.title||''}</td>
@@ -147,8 +148,14 @@ function openUserGoalDetail(id){
   
   // Add editable memo field
   const memoDiv=document.createElement('div');memoDiv.className='mt-2';
-  memoDiv.innerHTML=`<div class="font-semibold mb-1">メモ：</div>
-    <textarea id="user-goal-memo-edit" class="w-full border rounded px-2 py-1 text-sm" rows="4">${g.memo||''}</textarea>`;
+  const memoLabel=document.createElement('div');memoLabel.className='font-semibold mb-1';memoLabel.textContent='メモ：';
+  const memoTextarea=document.createElement('textarea');
+  memoTextarea.id='user-goal-memo-edit';
+  memoTextarea.className='w-full border rounded px-2 py-1 text-sm';
+  memoTextarea.rows=4;
+  memoTextarea.value=g.memo||'';
+  memoDiv.appendChild(memoLabel);
+  memoDiv.appendChild(memoTextarea);
   c.appendChild(memoDiv);
   
   document.getElementById('user-goal-detail').classList.remove('hidden');
@@ -296,15 +303,7 @@ function renderAdminGoals(nameFilter='',typeId=''){
     .forEach((g,i)=>{
       const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
       const majors=g.majors||[];
-      const cell=(idx)=>{
-        const m=majors[idx-1]; 
-        if(!m||!m.content)return {html:'', bgColor:''};
-        const termText=m.due_term==='下期末'?'下期まで':'上期まで';
-        const mark=m.done?'■':'□';
-        const bgColor=m.done?'bg-green-200':'';
-        return {html:`${termText}[${mark}]`, bgColor};
-      };
-      const c1=cell(1), c2=cell(2), c3=cell(3), c4=cell(4), c5=cell(5);
+      const c1=formatMajorCell(majors,1), c2=formatMajorCell(majors,2), c3=formatMajorCell(majors,3), c4=formatMajorCell(majors,4), c5=formatMajorCell(majors,5);
       tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
         <td class="border px-2 py-1">${g.user_name||''}</td>
         <td class="border px-2 py-1">${g.goal_type_name||''}</td>
