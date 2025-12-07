@@ -99,9 +99,8 @@ function formatMajorCell(majors, idx){
   const m=majors[idx-1]; 
   if(!m||!m.content)return {html:'', bgColor:''};
   const termText=m.due_term==='下期末'?'下期まで':'上期まで';
-  const mark=m.done?'■':'□';
   const bgColor=m.done?'bg-green-200':'';
-  return {html:`${termText}[${mark}]`, bgColor};
+  return {html:termText, bgColor};
 }
 
 function renderUserGoalList(){
@@ -139,7 +138,7 @@ function openUserGoalDetail(id){
     row.innerHTML=`<span class="font-semibold">M${i+1}</span><span>${m.content||''}</span>
       <span class="ml-auto">${m.due_term}</span>
       <label class="flex items-center gap-1">
-        <input type="checkbox" data-major-index="${i}" ${m.done?'checked':''}>
+        <input type="checkbox" data-major-index="${m.idx||i+1}" ${m.done?'checked':''}>
         <span>完了</span>
       </label>`;
     majorsDiv.appendChild(row);
