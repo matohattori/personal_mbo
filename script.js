@@ -95,21 +95,29 @@ function renderGoalTypeOptions(){
   });
 }
 
+function formatMajorCell(majors, idx){
+  const m=majors[idx-1]; 
+  if(!m||!m.content)return {html:'', bgColor:''};
+  const termText=m.due_term==='下期末'?'下期まで':'上期まで';
+  const bgColor=m.done?'bg-green-200':'';
+  return {html:termText, bgColor};
+}
+
 function renderUserGoalList(){
   const tb=document.getElementById('user-goal-list-body');
   tb.innerHTML='';
   (window._userGoals||[]).forEach((g,i)=>{
     const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
     const majors=g.majors||[];
-    const cell=(idx)=>{const m=majors[idx-1]; if(!m||!m.content)return ''; const term=m.due_term==='下期末'?'下':'上'; const mark=m.done?'■':'□'; return `${term}[${mark}]`;};
+    const c1=formatMajorCell(majors,1), c2=formatMajorCell(majors,2), c3=formatMajorCell(majors,3), c4=formatMajorCell(majors,4), c5=formatMajorCell(majors,5);
     tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
       <td class="border px-2 py-1">${g.goal_type_name||''}</td>
       <td class="border px-2 py-1">${g.title||''}</td>
-      <td class="border px-2 py-1 text-center">${cell(1)}</td>
-      <td class="border px-2 py-1 text-center">${cell(2)}</td>
-      <td class="border px-2 py-1 text-center">${cell(3)}</td>
-      <td class="border px-2 py-1 text-center">${cell(4)}</td>
-      <td class="border px-2 py-1 text-center">${cell(5)}</td>`;
+      <td class="border px-2 py-1 text-center ${c1.bgColor}">${c1.html}</td>
+      <td class="border px-2 py-1 text-center ${c2.bgColor}">${c2.html}</td>
+      <td class="border px-2 py-1 text-center ${c3.bgColor}">${c3.html}</td>
+      <td class="border px-2 py-1 text-center ${c4.bgColor}">${c4.html}</td>
+      <td class="border px-2 py-1 text-center ${c5.bgColor}">${c5.html}</td>`;
     tr.onclick=()=>openUserGoalDetail(g.id);
     tb.appendChild(tr);
   });
@@ -130,13 +138,25 @@ function openUserGoalDetail(id){
     row.innerHTML=`<span class="font-semibold">M${i+1}</span><span>${m.content||''}</span>
       <span class="ml-auto">${m.due_term}</span>
       <label class="flex items-center gap-1">
-        <input type="checkbox" data-major-index="${i}" ${m.done?'checked':''}>
+        <input type="checkbox" data-major-index="${m.idx||i+1}" ${m.done?'checked':''}>
         <span>完了</span>
       </label>`;
     majorsDiv.appendChild(row);
   });
   c.appendChild(majorsDiv);
-  c.appendChild(block('メモ',g.memo||''));
+  
+  // Add editable memo field
+  const memoDiv=document.createElement('div');memoDiv.className='mt-2';
+  const memoLabel=document.createElement('div');memoLabel.className='font-semibold mb-1';memoLabel.textContent='メモ：';
+  const memoTextarea=document.createElement('textarea');
+  memoTextarea.id='user-goal-memo-edit';
+  memoTextarea.className='w-full border rounded px-2 py-1 text-sm';
+  memoTextarea.rows=4;
+  memoTextarea.value=g.memo||'';
+  memoDiv.appendChild(memoLabel);
+  memoDiv.appendChild(memoTextarea);
+  c.appendChild(memoDiv);
+  
   document.getElementById('user-goal-detail').classList.remove('hidden');
 }
 
@@ -145,7 +165,9 @@ async function saveUserGoalProgress(){
   const id=c.dataset.goalId; if(!id)return;
   const checks=c.querySelectorAll('input[type="checkbox"][data-major-index]');
   const arr=[]; checks.forEach(cb=>arr.push({index:parseInt(cb.dataset.majorIndex,10),done:cb.checked?'1':'0'}));
-  await apiPost('update_major_done',{goal_id:id,majors:JSON.stringify(arr)});
+  const memoField=document.getElementById('user-goal-memo-edit');
+  const memo=memoField?memoField.value:'';
+  await apiPost('update_major_done',{goal_id:id,majors:JSON.stringify(arr),memo});
   const d=await apiPost('get_user_goals',{});
   window._userGoals=d.userGoals||[];
   renderUserGoalList();
@@ -280,16 +302,16 @@ function renderAdminGoals(nameFilter='',typeId=''){
     .forEach((g,i)=>{
       const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
       const majors=g.majors||[];
-      const cell=(idx)=>{const m=majors[idx-1]; if(!m||!m.content)return ''; const term=m.due_term==='下期末'?'下':'上'; const mark=m.done?'■':'□'; return `${term}[${mark}]`;};
+      const c1=formatMajorCell(majors,1), c2=formatMajorCell(majors,2), c3=formatMajorCell(majors,3), c4=formatMajorCell(majors,4), c5=formatMajorCell(majors,5);
       tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
         <td class="border px-2 py-1">${g.user_name||''}</td>
         <td class="border px-2 py-1">${g.goal_type_name||''}</td>
         <td class="border px-2 py-1">${g.title||''}</td>
-        <td class="border px-2 py-1 text-center">${cell(1)}</td>
-        <td class="border px-2 py-1 text-center">${cell(2)}</td>
-        <td class="border px-2 py-1 text-center">${cell(3)}</td>
-        <td class="border px-2 py-1 text-center">${cell(4)}</td>
-        <td class="border px-2 py-1 text-center">${cell(5)}</td>`;
+        <td class="border px-2 py-1 text-center ${c1.bgColor}">${c1.html}</td>
+        <td class="border px-2 py-1 text-center ${c2.bgColor}">${c2.html}</td>
+        <td class="border px-2 py-1 text-center ${c3.bgColor}">${c3.html}</td>
+        <td class="border px-2 py-1 text-center ${c4.bgColor}">${c4.html}</td>
+        <td class="border px-2 py-1 text-center ${c5.bgColor}">${c5.html}</td>`;
       tr.onclick=()=>openAdminGoalDetail(g.id);
       tb.appendChild(tr);
     });
