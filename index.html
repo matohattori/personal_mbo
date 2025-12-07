@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>個人MBO管理アプリ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-blue-600 text-white p-4">
+      <div class="max-w-5xl mx-auto flex items-center justify-between">
+        <h1 class="font-bold text-xl">個人MBO管理アプリ</h1>
+        <div id="header-user-info" class="text-sm">
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <div class="max-w-5xl mx-auto py-6 px-4">
+
+        <section id="page-login" class="max-w-md mx-auto bg-white rounded shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">ログイン</h2>
+
+          <div id="login-error" class="hidden mb-3 text-sm text-red-600"></div>
+
+          <label class="block mb-2 text-sm">
+            ユーザーID
+            <input id="login-user-id" type="text"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <label class="block mb-2 text-sm">
+            パスワード
+            <input id="login-password" type="password"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <div class="flex items-center justify-between mt-4">
+            <button id="btn-login"
+                    class="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
+              ログイン
+            </button>
+            <button id="btn-go-register"
+                    class="text-blue-600 text-sm underline">
+              初めて利用する方（新規登録）
+            </button>
+          </div>
+        </section>
+
+        <section id="page-register" class="max-w-md mx-auto bg-white rounded shadow p-6 hidden">
+          <h2 class="text-lg font-semibold mb-4">新規登録</h2>
+
+          <div id="register-error" class="hidden mb-3 text-sm text-red-600"></div>
+
+          <label class="block mb-2 text-sm">
+            ユーザーID
+            <input id="register-user-id" type="text"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <label class="block mb-2 text-sm">
+            名前（苗字・名前の間にスペースなし）
+            <input id="register-name" type="text"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <label class="block mb-2 text-sm">
+            パスワード
+            <input id="register-password" type="password"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <label class="block mb-4 text-sm">
+            パスワード（確認）
+            <input id="register-password-confirm" type="password"
+                   class="mt-1 w-full border rounded px-3 py-2 text-sm">
+          </label>
+
+          <div class="flex items-center justify-between">
+            <button id="btn-register"
+                    class="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
+              登録してログイン
+            </button>
+            <button id="btn-back-login"
+                    class="text-blue-600 text-sm underline">
+              ログインに戻る
+            </button>
+          </div>
+        </section>
+
+        <section id="page-user" class="hidden">
+          <div class="mb-4 flex items-center gap-2">
+            <button data-user-tab="list"
+                    class="user-tab bg-blue-600 text-white text-xs px-3 py-1 rounded">
+              目標一覧
+            </button>
+            <button data-user-tab="edit"
+                    class="user-tab bg-gray-200 text-gray-800 text-xs px-3 py-1 rounded">
+              目標登録・編集
+            </button>
+            <button data-user-tab="password"
+                    class="user-tab bg-gray-200 text-gray-800 text-xs px-3 py-1 rounded">
+              パスワード変更
+            </button>
+          </div>
+
+          <div id="user-tab-list">
+            <div class="bg-white rounded shadow p-4">
+              <h2 class="text-lg font-semibold mb-3">目標一覧（進捗）</h2>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-xs border">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="border px-2 py-1">No</th>
+                      <th class="border px-2 py-1">目標種別</th>
+                      <th class="border px-2 py-1">目標</th>
+                      <th class="border px-2 py-1">M1</th>
+                      <th class="border px-2 py-1">M2</th>
+                      <th class="border px-2 py-1">M3</th>
+                      <th class="border px-2 py-1">M4</th>
+                      <th class="border px-2 py-1">M5</th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-goal-list-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="user-goal-detail" class="bg-white rounded shadow p-4 mt-4 hidden">
+              <h3 class="text-md font-semibold mb-3">目標詳細</h3>
+              <div id="user-goal-detail-content" class="text-sm space-y-2">
+              </div>
+              <div class="mt-4 flex gap-2">
+                <button id="btn-user-goal-save"
+                        class="bg-blue-600 text-white text-xs px-4 py-2 rounded">
+                  進捗を保存
+                </button>
+                <button id="btn-user-goal-close"
+                        class="text-xs text-gray-700 underline">
+                  閉じる
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="user-tab-edit" class="hidden">
+            <div class="bg-white rounded shadow p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-semibold">目標登録・編集</h2>
+                <button id="btn-goal-new"
+                        class="bg-green-600 text-white text-xs px-3 py-1 rounded">
+                  新しい目標を追加
+                </button>
+              </div>
+
+              <div class="mb-4">
+                <h3 class="text-sm font-semibold mb-2">既存目標</h3>
+                <ul id="user-goal-edit-list" class="text-sm space-y-1">
+                </ul>
+              </div>
+
+              <div id="user-goal-edit-form-wrapper" class="border-t pt-4 mt-4 hidden">
+                <h3 class="text-sm font-semibold mb-2">目標編集</h3>
+                <form id="user-goal-edit-form" class="space-y-2 text-sm">
+                  <input type="hidden" id="goal-edit-id">
+
+                  <label class="block">
+                    目標種別
+                    <select id="goal-edit-type"
+                            class="mt-1 w-full border rounded px-2 py-1 text-sm">
+                    </select>
+                  </label>
+
+                  <label class="block">
+                    目標
+                    <input id="goal-edit-title" type="text"
+                           class="mt-1 w-full border rounded px-2 py-1 text-sm">
+                  </label>
+
+                  <label class="block">
+                    自分の課題
+                    <textarea id="goal-edit-issue"
+                              class="mt-1 w-full border rounded px-2 py-1 text-sm"
+                              rows="3"></textarea>
+                  </label>
+
+                  <label class="block">
+                    やること概要
+                    <textarea id="goal-edit-summary"
+                              class="mt-1 w-full border rounded px-2 py-1 text-sm"
+                              rows="3"></textarea>
+                  </label>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="border rounded p-2">
+                      <div class="font-semibold text-xs mb-1">メジャー1</div>
+                      <input id="major1-content" type="text"
+                             class="w-full border rounded px-2 py-1 text-xs mb-1"
+                             placeholder="内容">
+                      <div class="text-xs">
+                        完了時期：
+                        <label class="mr-2">
+                          <input type="radio" name="major1-term" value="上期末" checked> 上期末
+                        </label>
+                        <label>
+                          <input type="radio" name="major1-term" value="下期末"> 下期末
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="border rounded p-2">
+                      <div class="font-semibold text-xs mb-1">メジャー2</div>
+                      <input id="major2-content" type="text"
+                             class="w-full border rounded px-2 py-1 text-xs mb-1"
+                             placeholder="内容">
+                      <div class="text-xs">
+                        完了時期：
+                        <label class="mr-2">
+                          <input type="radio" name="major2-term" value="上期末" checked> 上期末
+                        </label>
+                        <label>
+                          <input type="radio" name="major2-term" value="下期末"> 下期末
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="border rounded p-2">
+                      <div class="font-semibold text-xs mb-1">メジャー3</div>
+                      <input id="major3-content" type="text"
+                             class="w-full border rounded px-2 py-1 text-xs mb-1"
+                             placeholder="内容">
+                      <div class="text-xs">
+                        完了時期：
+                        <label class="mr-2">
+                          <input type="radio" name="major3-term" value="上期末" checked> 上期末
+                        </label>
+                        <label>
+                          <input type="radio" name="major3-term" value="下期末"> 下期末
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="border rounded p-2">
+                      <div class="font-semibold text-xs mb-1">メジャー4</div>
+                      <input id="major4-content" type="text"
+                             class="w-full border rounded px-2 py-1 text-xs mb-1"
+                             placeholder="内容">
+                      <div class="text-xs">
+                        完了時期：
+                        <label class="mr-2">
+                          <input type="radio" name="major4-term" value="上期末" checked> 上期末
+                        </label>
+                        <label>
+                          <input type="radio" name="major4-term" value="下期末"> 下期末
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="border rounded p-2">
+                      <div class="font-semibold text-xs mb-1">メジャー5</div>
+                      <input id="major5-content" type="text"
+                             class="w-full border rounded px-2 py-1 text-xs mb-1"
+                             placeholder="内容">
+                      <div class="text-xs">
+                        完了時期：
+                        <label class="mr-2">
+                          <input type="radio" name="major5-term" value="上期末" checked> 上期末
+                        </label>
+                        <label>
+                          <input type="radio" name="major5-term" value="下期末"> 下期末
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <label class="block">
+                    メモ
+                    <textarea id="goal-edit-memo"
+                              class="mt-1 w-full border rounded px-2 py-1 text-sm"
+                              rows="3"></textarea>
+                  </label>
+
+                  <div class="flex gap-2 mt-3">
+                    <button type="button" id="btn-goal-save"
+                            class="bg-blue-600 text-white text-xs px-4 py-2 rounded">
+                      保存
+                    </button>
+                    <button type="button" id="btn-goal-delete"
+                            class="bg-red-600 text-white text-xs px-4 py-2 rounded">
+                      削除
+                    </button>
+                    <button type="button" id="btn-goal-cancel"
+                            class="text-xs text-gray-700 underline">
+                      キャンセル
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div id="user-tab-password" class="hidden">
+            <div class="bg-white rounded shadow p-4 max-w-md">
+              <h2 class="text-lg font-semibold mb-3">パスワード変更</h2>
+              <div id="password-change-message" class="hidden mb-2 text-xs"></div>
+
+              <label class="block text-sm mb-2">
+                現在のパスワード
+                <input id="password-current" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm mb-2">
+                新しいパスワード
+                <input id="password-new" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm mb-4">
+                新しいパスワード（確認）
+                <input id="password-new-confirm" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+
+              <div class="flex gap-2">
+                <button id="btn-password-change"
+                        class="bg-blue-600 text-white text-xs px-4 py-2 rounded">
+                  変更する
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-admin" class="hidden">
+          <div class="mb-4 flex items-center gap-2">
+            <button data-admin-tab="goals"
+                    class="admin-tab bg-blue-600 text-white text-xs px-3 py-1 rounded">
+              全目標一覧
+            </button>
+            <button data-admin-tab="types"
+                    class="admin-tab bg-gray-200 text-gray-800 text-xs px-3 py-1 rounded">
+              目標種別マスタ
+            </button>
+            <button data-admin-tab="password"
+                    class="admin-tab bg-gray-200 text-gray-800 text-xs px-3 py-1 rounded">
+              パスワード変更
+            </button>
+          </div>
+
+          <div id="admin-tab-goals">
+            <div class="bg-white rounded shadow p-4 mb-4">
+              <h2 class="text-lg font-semibold mb-3">全目標一覧</h2>
+
+              <div class="flex flex-wrap gap-2 mb-3 text-xs">
+                <div>
+                  <label>名前フィルタ：
+                    <input id="admin-filter-name" type="text"
+                           class="border rounded px-2 py-1 text-xs">
+                  </label>
+                </div>
+                <div>
+                  <label>目標種別：
+                    <select id="admin-filter-type"
+                            class="border rounded px-2 py-1 text-xs">
+                      <option value="">すべて</option>
+                    </select>
+                  </label>
+                </div>
+                <button id="btn-admin-filter"
+                        class="bg-gray-700 text-white px-3 py-1 rounded">
+                  絞り込み
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-xs border">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="border px-2 py-1">No</th>
+                      <th class="border px-2 py-1">名前</th>
+                      <th class="border px-2 py-1">目標種別</th>
+                      <th class="border px-2 py-1">目標</th>
+                      <th class="border px-2 py-1">M1</th>
+                      <th class="border px-2 py-1">M2</th>
+                      <th class="border px-2 py-1">M3</th>
+                      <th class="border px-2 py-1">M4</th>
+                      <th class="border px-2 py-1">M5</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-goal-list-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="admin-goal-detail" class="bg-white rounded shadow p-4 hidden">
+              <h3 class="text-md font-semibold mb-3">目標詳細（管理者用）</h3>
+              <div id="admin-goal-detail-content" class="text-sm space-y-2">
+              </div>
+              <div class="mt-3">
+                <label class="block text-sm mb-1">管理者用メモ（個人には非表示）</label>
+                <textarea id="admin-memo"
+                          class="w-full border rounded px-2 py-1 text-sm"
+                          rows="4"></textarea>
+              </div>
+              <div class="mt-3 flex gap-2">
+                <button id="btn-admin-memo-save"
+                        class="bg-blue-600 text-white text-xs px-4 py-2 rounded">
+                  メモを保存
+                </button>
+                <button id="btn-admin-goal-close"
+                        class="text-xs text-gray-700 underline">
+                  閉じる
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-tab-types" class="hidden">
+            <div class="bg-white rounded shadow p-4 max-w-md">
+              <h2 class="text-lg font-semibold mb-3">目標種別マスタ</h2>
+              <ul id="admin-goal-type-list" class="text-sm mb-3 space-y-1">
+              </ul>
+              <div class="flex gap-2 mt-3 text-sm">
+                <input id="admin-goal-type-new" type="text"
+                       class="flex-1 border rounded px-2 py-1 text-sm"
+                       placeholder="新しい目標種別名">
+                <button id="btn-admin-goal-type-add"
+                        class="bg-green-600 text-white text-xs px-3 py-2 rounded">
+                  追加
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="admin-tab-password" class="hidden">
+            <div class="bg-white rounded shadow p-4 max-w-md">
+              <h2 class="text-lg font-semibold mb-3">パスワード変更（管理者）</h2>
+              <div id="admin-password-change-message" class="hidden mb-2 text-xs"></div>
+
+              <label class="block text-sm mb-2">
+                現在のパスワード
+                <input id="admin-password-current" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm mb-2">
+                新しいパスワード
+                <input id="admin-password-new" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+              <label class="block text-sm mb-4">
+                新しいパスワード（確認）
+                <input id="admin-password-new-confirm" type="password"
+                       class="mt-1 w-full border rounded px-2 py-1 text-sm">
+              </label>
+
+              <div class="flex gap-2">
+                <button id="btn-admin-password-change"
+                        class="bg-blue-600 text-white text-xs px-4 py-2 rounded">
+                  変更する
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
