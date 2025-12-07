@@ -101,15 +101,23 @@ function renderUserGoalList(){
   (window._userGoals||[]).forEach((g,i)=>{
     const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
     const majors=g.majors||[];
-    const cell=(idx)=>{const m=majors[idx-1]; if(!m||!m.content)return ''; const term=m.due_term==='下期末'?'下':'上'; const mark=m.done?'■':'□'; return `${term}[${mark}]`;};
+    const cell=(idx)=>{
+      const m=majors[idx-1]; 
+      if(!m||!m.content)return {html:'', bgColor:''};
+      const termText=m.due_term==='下期末'?'下期まで':'上期まで';
+      const mark=m.done?'■':'□';
+      const bgColor=m.done?'bg-green-200':'';
+      return {html:`${termText}[${mark}]`, bgColor};
+    };
+    const c1=cell(1), c2=cell(2), c3=cell(3), c4=cell(4), c5=cell(5);
     tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
       <td class="border px-2 py-1">${g.goal_type_name||''}</td>
       <td class="border px-2 py-1">${g.title||''}</td>
-      <td class="border px-2 py-1 text-center">${cell(1)}</td>
-      <td class="border px-2 py-1 text-center">${cell(2)}</td>
-      <td class="border px-2 py-1 text-center">${cell(3)}</td>
-      <td class="border px-2 py-1 text-center">${cell(4)}</td>
-      <td class="border px-2 py-1 text-center">${cell(5)}</td>`;
+      <td class="border px-2 py-1 text-center ${c1.bgColor}">${c1.html}</td>
+      <td class="border px-2 py-1 text-center ${c2.bgColor}">${c2.html}</td>
+      <td class="border px-2 py-1 text-center ${c3.bgColor}">${c3.html}</td>
+      <td class="border px-2 py-1 text-center ${c4.bgColor}">${c4.html}</td>
+      <td class="border px-2 py-1 text-center ${c5.bgColor}">${c5.html}</td>`;
     tr.onclick=()=>openUserGoalDetail(g.id);
     tb.appendChild(tr);
   });
@@ -136,7 +144,13 @@ function openUserGoalDetail(id){
     majorsDiv.appendChild(row);
   });
   c.appendChild(majorsDiv);
-  c.appendChild(block('メモ',g.memo||''));
+  
+  // Add editable memo field
+  const memoDiv=document.createElement('div');memoDiv.className='mt-2';
+  memoDiv.innerHTML=`<div class="font-semibold mb-1">メモ：</div>
+    <textarea id="user-goal-memo-edit" class="w-full border rounded px-2 py-1 text-sm" rows="4">${g.memo||''}</textarea>`;
+  c.appendChild(memoDiv);
+  
   document.getElementById('user-goal-detail').classList.remove('hidden');
 }
 
@@ -145,7 +159,9 @@ async function saveUserGoalProgress(){
   const id=c.dataset.goalId; if(!id)return;
   const checks=c.querySelectorAll('input[type="checkbox"][data-major-index]');
   const arr=[]; checks.forEach(cb=>arr.push({index:parseInt(cb.dataset.majorIndex,10),done:cb.checked?'1':'0'}));
-  await apiPost('update_major_done',{goal_id:id,majors:JSON.stringify(arr)});
+  const memoField=document.getElementById('user-goal-memo-edit');
+  const memo=memoField?memoField.value:'';
+  await apiPost('update_major_done',{goal_id:id,majors:JSON.stringify(arr),memo});
   const d=await apiPost('get_user_goals',{});
   window._userGoals=d.userGoals||[];
   renderUserGoalList();
@@ -280,16 +296,24 @@ function renderAdminGoals(nameFilter='',typeId=''){
     .forEach((g,i)=>{
       const tr=document.createElement('tr');tr.className='cursor-pointer hover:bg-blue-50';
       const majors=g.majors||[];
-      const cell=(idx)=>{const m=majors[idx-1]; if(!m||!m.content)return ''; const term=m.due_term==='下期末'?'下':'上'; const mark=m.done?'■':'□'; return `${term}[${mark}]`;};
+      const cell=(idx)=>{
+        const m=majors[idx-1]; 
+        if(!m||!m.content)return {html:'', bgColor:''};
+        const termText=m.due_term==='下期末'?'下期まで':'上期まで';
+        const mark=m.done?'■':'□';
+        const bgColor=m.done?'bg-green-200':'';
+        return {html:`${termText}[${mark}]`, bgColor};
+      };
+      const c1=cell(1), c2=cell(2), c3=cell(3), c4=cell(4), c5=cell(5);
       tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>
         <td class="border px-2 py-1">${g.user_name||''}</td>
         <td class="border px-2 py-1">${g.goal_type_name||''}</td>
         <td class="border px-2 py-1">${g.title||''}</td>
-        <td class="border px-2 py-1 text-center">${cell(1)}</td>
-        <td class="border px-2 py-1 text-center">${cell(2)}</td>
-        <td class="border px-2 py-1 text-center">${cell(3)}</td>
-        <td class="border px-2 py-1 text-center">${cell(4)}</td>
-        <td class="border px-2 py-1 text-center">${cell(5)}</td>`;
+        <td class="border px-2 py-1 text-center ${c1.bgColor}">${c1.html}</td>
+        <td class="border px-2 py-1 text-center ${c2.bgColor}">${c2.html}</td>
+        <td class="border px-2 py-1 text-center ${c3.bgColor}">${c3.html}</td>
+        <td class="border px-2 py-1 text-center ${c4.bgColor}">${c4.html}</td>
+        <td class="border px-2 py-1 text-center ${c5.bgColor}">${c5.html}</td>`;
       tr.onclick=()=>openAdminGoalDetail(g.id);
       tb.appendChild(tr);
     });

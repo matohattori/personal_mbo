@@ -332,6 +332,7 @@ function handle_update_major_done(SQLite3 $db): void {
   $uid=current_user_id();
   $goal_id=(int)($_POST['goal_id'] ?? 0);
   $majors_json=$_POST['majors'] ?? '[]';
+  $memo=$_POST['memo'] ?? null;
   $st=$db->prepare('SELECT user_id FROM goals WHERE id=:id');
   $st->bindValue(':id',$goal_id,SQLITE3_INTEGER);
   $re=$st->execute();$ro=$re->fetchArray(SQLITE3_ASSOC);
@@ -347,6 +348,13 @@ function handle_update_major_done(SQLite3 $db): void {
     $stU->bindValue(':gid',$goal_id,SQLITE3_INTEGER);
     $stU->bindValue(':idx',$idx,SQLITE3_INTEGER);
     $stU->execute();
+  }
+  // Update memo if provided
+  if($memo!==null){
+    $stM=$db->prepare('UPDATE goals SET memo=:memo WHERE id=:id');
+    $stM->bindValue(':memo',$memo,SQLITE3_TEXT);
+    $stM->bindValue(':id',$goal_id,SQLITE3_INTEGER);
+    $stM->execute();
   }
   echo json_encode(['ok'=>true]);
 }
